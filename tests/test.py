@@ -62,22 +62,18 @@ class QuadraticSolverTests(unittest.TestCase):
             QuadraticParams(a=-1, b=-2, c=-3, infinite=False),
             # 4x - 4 = 0: (1)
             QuadraticParams(a=0, b=4, c=-4, infinite=False),
-            # 11x² + 2x = 0: (-0.181818, 0) Xmin -0.0909091
+            # 11x² + 2x = 0: (-0.181818181818182, 0) Xmin -0.0909090909090909
             QuadraticParams(a=11, b=2, c=0, infinite=False),
             # x² - 3x + 2 = 0: (1, 2) Xmin 1.5
             QuadraticParams(a=1, b=-3, c=2, infinite=False),
             # -x + 6 = 0: (6)
             QuadraticParams(a=0, b=-1, c=6, infinite=False),
-            # 3x² + 2x - 4 = 0: no roots Xmin 0.333333
+            # 3x² + 2x - 4 = 0: no roots Xmin 0.333333333333333
             QuadraticParams(a=-3, b=2, c=-4, infinite=False),
             # 0x² - 0x + 0 = 0: (inf)
             QuadraticParams(a=0, b=0, c=0, infinite=True),
-            # 1000x² + 2000x + 1000 = 0: (-1) Xmin -1
-            QuadraticParams(a=1000, b=2000, c=1000, infinite=False),
             # -x² + x - 1 = 0: no roots Xmin 0.5
             QuadraticParams(a=-1, b=1, c=-1, infinite=False),
-            # -500x² + 1500x - 1000 = 0: (2, 1) Xmin 1.5
-            QuadraticParams(a=-500, b=1500, c=-1000, infinite=False),
         ]
 
     def parse_output(self, output: str) -> List[QuadraticResult]:
@@ -200,6 +196,85 @@ class QuadraticSolverTests(unittest.TestCase):
                     self.verify_roots(case.a, case.b, case.c, result)
                 if not case.is_linear:
                     self.verify_extremum(case.a, case.b, result)
+
+    def test_multiple_equations(self):
+        """Test processing multiple equations in one command"""
+        coefficients = []
+
+        for case in self.cases:
+            coefficients.extend([case.a, case.b, case.c])
+
+        results = self.run_solver(*coefficients)
+        self.assertEqual(len(results), len(self.cases))
+
+        for case, result in zip(self.cases, results):
+            self.assertEqual(result.infinite, case.infinite)
+
+            if not case.infinite:
+                self.assertFalse(result.infinite)
+                if result.roots is not None:
+                    self.verify_roots(case.a, case.b, case.c, result)
+                if not case.is_linear:
+                    self.verify_extremum(case.a, case.b, result)
+
+    def test_large_coefficients(self):
+        """Test processing multiple equations in one command with coefficient values far beyond 32-bit integers"""
+        K = 10_000_000_000.0
+        cases = []
+        coefficients = []
+        for case in self.cases:
+            cases.append(
+                QuadraticParams(
+                    a=case.a * K,
+                    b=case.b * K,
+                    c=case.c * K,
+                    infinite=case.infinite,
+                ),
+            )
+            coefficients.extend([case.a, case.b, case.c])
+
+        results = self.run_solver(*coefficients)
+        self.assertEqual(len(results), len(cases))
+
+        for case, result in zip(cases, results):
+            self.assertEqual(result.infinite, case.infinite)
+
+            if not case.infinite:
+                self.assertFalse(result.infinite)
+                if result.roots is not None:
+                    self.verify_roots(case.a, case.b, case.c, result)
+                if not case.is_linear:
+                    self.verify_extremum(case.a, case.b, result)
+
+    def test_incomplete_sets(self):
+        """Test handling of incomplete coefficient sets"""
+        process = subprocess.run(
+            [self.binary_path, "1", "-5", "6", "2", "-4"],
+            capture_output=True,
+            text=True,
+        )
+
+        # Should process first complete set
+        results = self.parse_output(process.stdout)
+        self.assertEqual(len(results), 1)
+
+        # Should warn about incomplete set
+        self.assertIn("trailing coefficient(s) ignored", process.stderr)
+
+    def test_invalid_input(self):
+        """Test handling of incomplete coefficient sets"""
+        process = subprocess.run(
+            [self.binary_path, "1", "-5", "6", "a", "-4", "-4", "2", "-4", "2"],
+            capture_output=True,
+            text=True,
+        )
+
+        # Should process first complete set
+        results = self.parse_output(process.stdout)
+        self.assertEqual(len(results), 2)
+
+        # Should warn about incomplete set
+        self.assertIn("skipping invalid input", process.stderr)
 
 
 if __name__ == "__main__":

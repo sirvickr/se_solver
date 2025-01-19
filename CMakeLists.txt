@@ -20,3 +20,26 @@ add_executable(se_solver src/main.cpp)
 
 # Link the executable with the library
 target_link_libraries(se_solver PRIVATE quadratic_equation)
+
+# Enable testing
+enable_testing()
+
+# Add custom target to run Python tests
+add_custom_target(run_tests
+    COMMAND ${CMAKE_COMMAND} -E echo "Running Python tests..."
+    COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_quadratic_solver.py
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    DEPENDS se_solver
+)
+
+# Find Python (optional)
+find_package(Python COMPONENTS Interpreter)
+if(Python_FOUND)
+    message(STATUS "Python found: ${Python_EXECUTABLE}")
+    # Add test that runs the Python test suite
+    add_test(NAME PythonTests
+             COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_quadratic_solver.py
+             WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+else()
+    message(WARNING "Python not found - testing will be disabled")
+endif()

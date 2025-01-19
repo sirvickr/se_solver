@@ -7,7 +7,7 @@
 class QuadraticEquation
 {
 public:
-    QuadraticEquation(int a, int b, int c);
+    QuadraticEquation(double a, double b, double c);
 
     // Solve the equation (find its roots)
     // and find the axis of symmetry (X-coordinate of the extremum)
@@ -35,5 +35,5 @@ private:
 
 private:
     // Coefficients of ax² + bx + c
-    int a, b, c;
+    double a, b, c;
 };

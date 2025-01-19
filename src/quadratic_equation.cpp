@@ -5,26 +5,21 @@
 
 using namespace std;
 
-QuadraticEquation::QuadraticEquation(int a_, int b_, int c_) : a(a_), b(b_), c(c_)
+QuadraticEquation::QuadraticEquation(double a_, double b_, double c_) : a(a_), b(b_), c(c_)
 {
-    if (a == 0 && b == 0 && c == 0)
-    {
-        throw std::invalid_argument("Infinite roots (all parameters equal zero)");
-    }
 }
 
 void QuadraticEquation::solve()
 {
-    if (a == 0) // bx + c = 0
-    {
-        auto result = solveLinear(b, c);
-        cout << result << '\n';
-    }
-    else // ax^2 + bx + c = 0
-    {
-        auto result = solveQuadratic(a, b, c);
-        cout << result << '\n';
-    }
+    if (a == 0 && b == 0 && c == 0)
+        // 0x^2 + 0x + 0 = 0 yields an infinite number or roots
+        cout << "(inf)\n";
+    else if (a == 0)
+        // bx + c = 0
+        cout << solveLinear(b, c) << '\n';
+    else
+        // ax^2 + bx + c = 0
+        cout << solveQuadratic(a, b, c) << '\n';
 }
 
 QuadraticEquation::Result QuadraticEquation::solveQuadratic(double a, double b, double c) const
@@ -51,7 +46,9 @@ QuadraticEquation::Result QuadraticEquation::solveQuadratic(double a, double b, 
     // (discriminant > 0) Two roots
     discriminant = sqrt(discriminant);
     double denominator = 2 * a;
-    result.roots = {(-b - discriminant) / denominator, (-b + discriminant) / denominator};
+    result.roots.reserve(2);
+    result.roots.push_back((-b - discriminant) / denominator);
+    result.roots.push_back((-b + discriminant) / denominator);
 
     return result;
 }

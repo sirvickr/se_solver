@@ -21,9 +21,9 @@ int main(int argc, char *argv[])
         QuadraticEquation equation(a, b, c);
         equation.solve();
     }
-    catch (const std::invalid_argument &e)
+    catch (const exception &e)
     {
-        cout << "error: " << e.what() << '\n';
+        cerr << "Unexpected error: " << e.what() << "\n";
     }
 
     return 0;

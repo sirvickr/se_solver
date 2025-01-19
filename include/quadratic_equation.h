@@ -7,21 +7,26 @@
 class QuadraticEquation
 {
 public:
-    QuadraticEquation(double a, double b, double c);
-
-    // Solve the equation (find its roots)
-    // and find the axis of symmetry (X-coordinate of the extremum)
-    void solve();
-
-private:
     struct Result
     {
+        // The equation has infinite number of roots
+        bool infinite{};
         // Real roots of the equation
         std::vector<double> roots;
         // X-coordinate of the extremum (does not exist for linear functions)
         std::optional<double> extremum_x;
+        // Sequence number for consistently arranged output
+        size_t number;
+        // Provides sorting by number
+        bool operator>(const Result &r) const { return number > r.number; }
     };
 
+    QuadraticEquation(double a, double b, double c);
+
+    // Solve the equation (find its roots) and find X-coordinate of the extremum
+    Result solve();
+
+private:
     // ax^2 + bx + c = 0 (`a` must be non-zero)
     Result solveQuadratic(double a, double b, double c) const;
 

@@ -16,7 +16,7 @@ target_include_directories(quadratic_equation PUBLIC
 )
 
 # Add the executable
-add_executable(se_solver src/main.cpp src/task.cpp)
+add_executable(se_solver src/main.cpp src/result_manager.cpp src/processor.cpp)
 
 # Link the executable with the library
 target_link_libraries(se_solver PRIVATE quadratic_equation)

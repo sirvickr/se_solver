@@ -82,10 +82,15 @@ The solution follows a modular structure of folders:
 se_solver/
 ├── CMakeLists.txt          # Build configuration
 ├── include/
-│   └── quadratic_equation.h  # Solver class declaration
+│   ├── async_queue.h          # Asynchronous tasks queue template
+│   ├── task.h                 # Solver task declaration
+│   ├── processor.h            # Asynchronous tasks processor declaration
+│   ├── result_manager.h       # Sequential results rearrangement manager declaration
+│   └── quadratic_equation.h   # Solver class declaration
 ├── src/
-│   ├── main.cpp               # Program entry point
-│   ├── task.cpp               # Command-line interface
+│   ├── main.cpp               # Command-line interface
+│   ├── processor.cpp          # Asynchronous tasks processor implementation
+│   ├── result_manager.cpp     # Sequential results rearrangement manager implementation
 │   └── quadratic_equation.cpp # Solver class implementation
 └── tests/
     └── test.py # Tests
@@ -93,10 +98,16 @@ se_solver/
 
 ## Testing
 
-The project includes end-to-end tests written in Python. To run the tests, `cd` to the build directory and run the following command:
+The project includes end-to-end tests written in Python. To run the tests, `cd` to the build directory and run the one of the following commands:
 
 ```bash
+# Either run CTest
 ctest --output-on-failure
+```
+
+```bash
+# Or use the custom target
+make run_tests
 ```
 
 ## Technical Limitations

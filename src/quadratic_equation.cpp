@@ -9,17 +9,19 @@ QuadraticEquation::QuadraticEquation(double a_, double b_, double c_) : a(a_), b
 {
 }
 
-void QuadraticEquation::solve()
+QuadraticEquation::Result QuadraticEquation::solve()
 {
+    Result result;
     if (a == 0 && b == 0 && c == 0)
         // 0x^2 + 0x + 0 = 0 yields an infinite number or roots
-        cout << "(inf)\n";
+        result.infinite = true;
     else if (a == 0)
         // bx + c = 0
-        cout << solveLinear(b, c) << '\n';
+        result = solveLinear(b, c);
     else
         // ax^2 + bx + c = 0
-        cout << solveQuadratic(a, b, c) << '\n';
+        result = solveQuadratic(a, b, c);
+    return result;
 }
 
 QuadraticEquation::Result QuadraticEquation::solveQuadratic(double a, double b, double c) const
@@ -71,7 +73,9 @@ bool QuadraticEquation::almostZero(double value) const
 
 ostream &operator<<(ostream &os, const QuadraticEquation::Result &result)
 {
-    if (result.roots.empty())
+    if (result.infinite)
+        cout << "(inf)";
+    else if (result.roots.empty())
         os << "no roots";
     else
     {
